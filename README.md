@@ -7,6 +7,7 @@ Dependencies:
 * numpy  
 * scipy
 * matplotlib
+* pickle
 
 1. clone repo  
 2. open console:
