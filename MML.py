@@ -293,7 +293,9 @@ Builder.load_string('''
                         multiline: False
                         on_text_validate: 
                             if self.text != '':\
-                                root.network.in_dim = int(self.text);self.hint_text = str(root.network.in_dim);root.network.reset();root.scidata = []
+                            root.weights = [root.NP.copy(root.network.w),root.NP.copy(root.network.v),(root.NP.copy(root.network.u) if (int(root.hid2) > 0) else None),(root.NP.copy(root.network.z) if (int(root.hid3) > 0) else None)];\
+                            root.network.in_dim = int(self.text);self.hint_text = str(root.network.in_dim);root.network.reset();root.scidata = [];\
+                            root.network.v = root.weights[1]; root.network.u = root.weights[2]; root.network.z = root.weights[3]
                             else:\
                                 self.text = self.hint_text
                                     
@@ -308,7 +310,9 @@ Builder.load_string('''
                         multiline: False
                         on_text_validate: 
                             if self.text != '':\
-                                root.network.h1 = int(self.text);self.hint_text = str(root.network.h1);root.network.reset();root.scidata = []
+                            root.weights = [root.NP.copy(root.network.w),root.NP.copy(root.network.v),(root.NP.copy(root.network.u) if (int(root.hid2) > 0) else None),(root.NP.copy(root.network.z) if (int(root.hid3) > 0) else None)];\
+                            root.network.h1 = int(self.text);self.hint_text = str(root.network.h1);root.network.reset();root.scidata = [];\
+                            root.network.u = root.weights[2]; root.network.z = root.weights[3]
                             else:\
                                 self.text = self.hint_text
                     TextInput:
@@ -321,7 +325,9 @@ Builder.load_string('''
                         multiline: False
                         on_text_validate: 
                             if self.text != '':\
-                                root.network.h2 = int(self.text);self.hint_text = str(root.network.h2);root.network.reset();root.scidata = []
+                            root.weights = [root.NP.copy(root.network.w),root.NP.copy(root.network.v),(root.NP.copy(root.network.u) if (int(root.hid2) > 0) else None),(root.NP.copy(root.network.z) if (int(root.hid3) > 0) else None)];\
+                            root.network.h2 = int(self.text);self.hint_text = str(root.network.h2);root.network.reset();root.scidata = [];\
+                            root.network.w = root.weights[0]; root.network.z = root.weights[3]
                             else:\
                                 self.text = self.hint_text
                     TextInput:
@@ -334,7 +340,9 @@ Builder.load_string('''
                         multiline: False
                         on_text_validate: 
                             if self.text != '':\
-                                root.network.h3 = int(self.text);self.hint_text = str(root.network.h3);root.network.reset();root.scidata = []
+                            root.weights = [root.NP.copy(root.network.w),root.NP.copy(root.network.v),(root.NP.copy(root.network.u) if (int(root.hid2) > 0) else None),(root.NP.copy(root.network.z) if (int(root.hid3) > 0) else None)];\
+                            root.network.h3 = int(self.text);self.hint_text = str(root.network.h3);root.network.reset();root.scidata = [];\
+                            root.network.w = root.weights[0]; root.network.v = root.weights[1]
                             else:\
                                 self.text = self.hint_text
 
@@ -348,7 +356,9 @@ Builder.load_string('''
                         multiline: False
                         on_text_validate: 
                             if self.text != '':\
-                                root.network.out = int(self.text);self.hint_text = str(root.network.out);root.network.reset();root.setup_train();root.scidata = []
+                            root.weights = [root.NP.copy(root.network.w),root.NP.copy(root.network.v),(root.NP.copy(root.network.u) if (int(root.hid2) > 0) else None),(root.NP.copy(root.network.z) if (int(root.hid3) > 0) else None)];\
+                            root.network.out = int(self.text);self.hint_text = str(root.network.out);root.network.reset();root.setup_train();root.scidata = [];\
+                            root.network.w = root.weights[0]; root.network.v = root.weights[1]; root.network.u = root.weights[2]
                             else:\
                                 self.text = self.hint_text
 
@@ -954,6 +964,7 @@ class LinePlayground(FloatLayout):
     network = mmlp.mlp(in_dim=2,h1=64,h2=32,h3=16,out=1)
     errors = np.array([0.])
     errors_test = np.array([0.])
+    weights = []
     netloss = StringProperty('')
     time = StringProperty('')
     accu = StringProperty('Accuracy')
@@ -1126,12 +1137,13 @@ class LinePlayground(FloatLayout):
             self.P = self.Ptrain
             self.t = self.ttrain
 
+
         else:
             self.P = self.drawdata[1:,:2]
             self.t = self.drawdata[1:,2]                               
             for k in range(np.unique(self.t).shape[0]):
               self.t[np.where(self.t==np.unique(self.t)[k])[0]] = k
-            
+            self.Ptest = [] ######## reinit Ptest ...
 
         if int(self.network.out) > 1: 
             self.onehot = True
@@ -1145,7 +1157,7 @@ class LinePlayground(FloatLayout):
                 label += [np.where(self.t==i,1,0)]
             label = np.array(label).T
             self.t = label
-            self.ttest = self.t
+        self.ttest = self.t  ########################## change to actual test targets
         
 
     def animate(self, do_animation):  
