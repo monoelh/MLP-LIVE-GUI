@@ -15,7 +15,7 @@ Dependencies:
 
 ## Examples
 Per default, XOR data (with third class in the center) is used for training
-<img src="GUI_exampleA.png" width="425"/> <img src="GUI_layer3.png" width="425"/>
+<img src="GUI_exampleA.png" width="425"/> <img src="GUI_layer2.png" width="425"/>
 Training data can also be drawn by hand.  
 <img src="GUI_draw_black.png" width="425"/> <img src="GUI_draw_train.png" width="425"/> 
 

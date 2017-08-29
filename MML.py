@@ -19,7 +19,7 @@ import pickle
 from scipy.misc import *
 from kivy.graphics.texture import Texture
 #from PIL import Image as Img
-import seaborn as sns;sns.set()
+#import seaborn as sns;sns.set()
 from kivy.config import Config
 Config.set('kivy', 'exit_on_escape', '0')
 
@@ -75,10 +75,10 @@ Builder.load_string('''
 
     canvas.before:
 
-        Rectangle:
-            source: 'background.png'
-            pos: self.pos
-            size: 10,10#self.size  
+        #Rectangle:
+            #source: 'background.png'
+            #pos: self.pos
+            #size: 10,10#self.size  
 
         Rectangle:
             pos: self.width*.52,self.height*.35 
