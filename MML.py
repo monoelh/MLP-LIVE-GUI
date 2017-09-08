@@ -74,16 +74,20 @@ Builder.load_string('''
         
 
     canvas.before:
-
-        #Rectangle:
-            #source: 'background.png'
-            #pos: self.pos
-            #size: 10,10#self.size  
-
+        
+        Color:
+            rgba: .37, .37, .37,1
+        Rectangle:
+            
+            pos: self.pos
+            size: self.width,self.height
+        Color:
+            rgba: 1, 1, 1,1
         Rectangle:
             pos: self.width*.52,self.height*.35 
             size: self.height*.6,self.height*.6  
             texture: root.TEX
+        
     
     Label:
         text: root.drawdims
@@ -129,33 +133,33 @@ Builder.load_string('''
             BoxLayout:
                 orientation: 'horizontal'
                 Button:
-                    text: 'save IMG'
+                    text: 'plus'
                     background_color: 1,1,1, 0.4
                     size_hint_y: None
                     height: '40dp'
-                    on_release: root.save_HD()
+                    on_release: root.draw_zoom(max(.1,root.r*.5))
                     canvas.before:
                         BorderImage:
                             source: 'background.png'
                             pos: self.pos
                             size: self.size
                 Button:
-                    text: 'save IMG'
+                    text: 'minus'
                     background_color: 1,1,1, 0.4
                     size_hint_y: None
                     height: '40dp'
-                    on_release: root.save_HD()
+                    on_release: root.draw_zoom(root.r*1.5)
                     canvas.before:
                         BorderImage:
                             source: 'background.png'
                             pos: self.pos
                             size: self.size
                 Button:
-                    text: 'save IMG'
+                    text: 'normal'
                     background_color: 1,1,1, 0.4
                     size_hint_y: None
                     height: '40dp'
-                    on_release: root.save_HD()
+                    on_release: root.draw_zoom(2)
                     canvas.before:
                         BorderImage:
                             source: 'background.png'
@@ -392,23 +396,23 @@ Builder.load_string('''
                         text: str(root.network.f)[9:16]
                         background_color: 1,1, 1, .2
                         foreground_color: 1, 1, 1, 1
-                        on_release: dropdownTrnf.open(self);self.text = str(root.network.f)[9:16]
+                        on_release: dropdownTrnf.open(self)#;self.text = str(root.network.f)[9:16]
                                         
                     Button:
                         id: actv
                         text: str(root.network.f2)[9:16]
                         background_color: 1,1, 1, .2
                         foreground_color: 1, 1, 1, 1
-                        on_release: dropdownAct.open(self);self.text = str(root.network.f2)[9:16]
+                        on_release: dropdownAct.open(self)#;self.text = str(root.network.f2)[9:16]
                                             
                     Button:
                         id: lss
                         text: str(root.network.err)[9:14]
                         background_color: 1,1, 1, .2
                         foreground_color: 1, 1, 1, 1
-                        on_release: dropdownLoss.open(self);self.text = str(root.network.err)[9:14]
+                        on_release: dropdownLoss.open(self)#;self.text = str(root.network.err)[9:14]
                         
-                    DropDown:
+                    DropDown: 
                         id: dropdownLoss
                         on_select: lss.text = '{}'.format(args[1]); self.dismiss();
 
@@ -1003,6 +1007,17 @@ class LinePlayground(FloatLayout):
     drawdata = np.empty((1,3))
     CMAPS = 'gist_ncar_r'
     scidata = []
+    r = 2
+    def draw_zoom(self,r):
+        R = np.linspace(-r, r, 100, endpoint=True) 
+        A,B = np.meshgrid(R,R)
+        G = [] 
+        for i in range(A.shape[0]):
+            for j in range(A.shape[1]):
+                G += [[A[i][i],A[i][j]]]
+        self.G = np.array(G)
+        self.r = r
+
     def draw_graphs(self):
         self.pointsG = [(self.width * 0.03,self.height * 0.9),
                                     [self.width * 0.03,self.height * 0.7],
@@ -1064,7 +1079,7 @@ class LinePlayground(FloatLayout):
         arr = arr.reshape(100,100)#.T
         tranfer = plt.get_cmap(self.CMAPS)
         arr = tranfer(arr)
-        arr[:,:,3] *= 255 # alpha
+        arr[:,:,3] *= 255 # alpha 
         arr[:,:,:3] *= 255 # brightness
         arr = arr.astype(np.uint8)
         data = arr.tostring()
@@ -1196,7 +1211,7 @@ class LinePlayground(FloatLayout):
 
     def save_HD(self):        
         visu = None
-
+        arr_out = self.network.predict(self.G)
         if self.outstate == 'h1' and self.network.h1 != 0:
             visu = self.network.s1
         if self.outstate == 'h2' and self.network.h2 != 0:
@@ -1205,7 +1220,6 @@ class LinePlayground(FloatLayout):
             visu = self.network.s3
         
         if self.outstate != 'out' and visu is not None:
-            arr_out = self.network.predict(self.G)
             frame = np.zeros(( (int(np.sqrt(visu.shape[0]))+1)*100,100*(int(np.sqrt(visu.shape[0]))+1)  ))
             for i in range(int(np.sqrt(visu.shape[0]))+1):
                 for k in range(int(np.sqrt(visu.shape[0]))+1):
@@ -1217,7 +1231,7 @@ class LinePlayground(FloatLayout):
             arr = frame                        
             arr = arr.reshape(-1)
             if np.max(np.abs(arr)) != 0. : arr = arr /np.max(np.abs(arr))
-            arr = arr.reshape(frame.shape[0],frame.shape[1])
+            arr = arr.reshape(frame.shape[0],frame.shape[0])
 
         else:
 
@@ -1247,8 +1261,8 @@ class LinePlayground(FloatLayout):
         '''
         tranfer = plt.get_cmap(self.CMAPS)
         arr = tranfer(arr)
-        arr[:,:,3] *= 255 # alpha
-        arr[:,:,:3] *= 255 # brightness
+        #arr[:,:,3] *= 255 # alpha
+        #arr[:,:,:3] *= 255 # brightness
         imsave((self.outstate+'.png'),np.flip(arr,0))
         print(self.outstate+' image saved.')
 
