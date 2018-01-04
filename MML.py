@@ -11,7 +11,7 @@ from kivy.graphics import *
 from kivy.uix.dropdown import DropDown
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.checkbox import CheckBox
-from mmlp import mmlp
+from mlp3 import mlp3
 import matplotlib.pyplot as plt
 from kivy.uix.image import Image
 import pickle 
@@ -22,7 +22,6 @@ from kivy.graphics.texture import Texture
 #import seaborn as sns;sns.set()
 from kivy.config import Config
 Config.set('kivy', 'exit_on_escape', '0')
-
 
 Builder.load_string('''
 
@@ -76,7 +75,7 @@ Builder.load_string('''
     canvas.before:
         
         Color:
-            rgba: .37, .37, .37,1
+            rgba: .37, .37, .37,0
         Rectangle:
             
             pos: self.pos
@@ -885,7 +884,7 @@ Builder.load_string('''
 class LinePlayground(FloatLayout):
     
     NP = np
-    MM = mmlp
+    MM = mlp3
     pk = pickle
     
     R = np.linspace(-2, 2, 100, endpoint=True) 
@@ -965,7 +964,7 @@ class LinePlayground(FloatLayout):
     eps = StringProperty('1e-7')
     
 
-    network = mmlp.mlp(in_dim=2,h1=64,h2=32,h3=16,out=1)
+    network = mlp3.mlp(in_dim=2,h1=64,h2=32,h3=16,out=1)
     errors = np.array([0.])
     errors_test = np.array([0.])
     weights = []
